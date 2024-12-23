@@ -1,102 +1,51 @@
-/*
+import discord
+import asyncio
+import os
+from dotenv import load_dotenv
 
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-                                                 
-  _________ ___ ___ ._______   _________    
- /   _____//   |   \|   \   \ /   /  _  \   
- \_____  \/    ~    \   |\   Y   /  /_\  \  
- /        \    Y    /   | \     /    |    \ 
-/_______  /\___|_  /|___|  \___/\____|__  / 
-        \/       \/                     \/  
-                    
-DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
-YouTube : https://www.youtube.com/@GlaceYT                         
-                                                                       
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
+# Load environment variables from the .env file
+load_dotenv()
 
+# Retrieve the bot token from the environment variables
+TOKEN = os.getenv("MTMyMDc1NzkyNDMwOTYzNTE1Mw.GCHT2U.0solwmmduFgseRQPy9dXA_Cq5eetpFEwUoZ5Iw")
 
-*/
-const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
+# Replace with your channel ID
+CHANNEL_ID = 1226239998060265504
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds
-  ],
-});
+# Set up the bot's intents
+intents = discord.Intents.default()
+intents.messages = True
+intents.guilds = True
 
-const app = express();
-const port = 3000;
-app.get('/', (req, res) => {
-  const imagePath = path.join(__dirname, 'index.html');
-  res.sendFile(imagePath);
-});
-app.listen(port, () => {
-  console.log('\x1b[36m[ SERVER ]\x1b[0m', '\x1b[32m SH : http://localhost:' + port + ' ✅\x1b[0m');
-});
+# Initialize the bot client with the 'bot=False)' parameter
+client = discord.Client(intents=intents, bot=False)
 
-const statusMessages = ["Hostify", "Best Hosting Service!"];
-const statusTypes = [ 'online', 'online'];
-let currentStatusIndex = 0;
-let currentTypeIndex = 0;
+# Event that runs when the bot is ready
+@client.event
+async def on_ready():
+    print(f"Logged in as {client.user}")
+    await send_message_loop()
 
-async function login() {
-  try {
-    await client.login(process.env.TOKEN);
-    console.log('\x1b[36m[ LOGIN ]\x1b[0m', `\x1b[32mLogged in as: ${client.user.tag} ✅\x1b[0m`);
-    console.log('\x1b[36m[ INFO ]\x1b[0m', `\x1b[35mBot ID: ${client.user.id} \x1b[0m`);
-    console.log('\x1b[36m[ INFO ]\x1b[0m', `\x1b[34mConnected to ${client.guilds.cache.size} server(s) \x1b[0m`);
-  } catch (error) {
-    console.error('\x1b[31m[ ERROR ]\x1b[0m', 'Failed to log in:', error);
-    process.exit(1);
-  }
-}
+# Function to send messages to the channel in a loop
+async def send_message_loop():
+    # Get the channel object using its ID
+    channel = client.get_channel(CHANNEL_ID)
 
-function updateStatus() {
-  const currentStatus = statusMessages[currentStatusIndex];
-  const currentType = statusTypes[currentTypeIndex];
-  client.user.setPresence({
-    activities: [{ name: currentStatus, type: ActivityType.Custom }],
-    status: currentType,
-  });
-  console.log('\x1b[33m[ STATUS ]\x1b[0m', `Updated status to: ${currentStatus} (${currentType})`);
-  currentStatusIndex = (currentStatusIndex + 1) % statusMessages.length;
-  currentTypeIndex = (currentTypeIndex + 1) % statusTypes.length;
-}
+    if not channel:
+        print(f"Channel with ID {CHANNEL_ID} not found!")
+        return
 
-function heartbeat() {
-  setInterval(() => {
-    console.log('\x1b[35m[ HEARTBEAT ]\x1b[0m', `Bot is alive at ${new Date().toLocaleTimeString()}`);
-  }, 30000);
-}
+    # Send 'test' as a message in the channel every 3 minutes (180 seconds)
+    while True:
+        try:
+            await channel.send("test")
+            print("Message sent!")
+        except Exception as e:
+            print(f"Failed to send message: {e}")
+        await asyncio.sleep(180)
 
-client.once('ready', () => {
-  console.log('\x1b[36m[ INFO ]\x1b[0m', `\x1b[34mPing: ${client.ws.ping} ms \x1b[0m`);
-  updateStatus();
-  setInterval(updateStatus, 6000);
-  heartbeat();
-});
-
-login();
-
-  
-/*
-
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-                                                 
-  _________ ___ ___ ._______   _________    
- /   _____//   |   \|   \   \ /   /  _  \   
- \_____  \/    ~    \   |\   Y   /  /_\  \  
- /        \    Y    /   | \     /    |    \ 
-/_______  /\___|_  /|___|  \___/\____|__  / 
-        \/       \/                     \/  
-                    
-DISCORD :  https://discord.com/invite/xQF9f9yUEM                   
-YouTube : https://www.youtube.com/@GlaceYT                         
-                                                                       
-☆.。.:*・°☆.。.:*・°☆.。.:*・°☆.。.:*・°☆
-
-
-*/
+# Run the bot
+if TOKEN is None:
+    print("Token not found! Please add your token to the .env file.")
+else:
+    client.run(TOKEN)
